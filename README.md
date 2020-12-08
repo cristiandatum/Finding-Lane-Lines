@@ -1,56 +1,53 @@
 # **Finding Lane Lines on the Road** 
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
-<img src="examples/laneLines_thirdPass.jpg" width="480" alt="Combined Image" />
+# Finding Lane Lines on the Road
+#### Submitted by Cristian Alberch as part of Udacity Self Driving Car Engineering Nanodegree - December 2020
 
-Overview
----
+### Overview
+When we drive, we use our eyes to decide where to go. The lines on the road that show us where the lanes are act as our constant reference for where to steer the vehicle. Naturally, one of the first things we would like to do in developing a self-driving car is to automatically detect lane lines using an algorithm.
 
-When we drive, we use our eyes to decide where to go.  The lines on the road that show us where the lanes are act as our constant reference for where to steer the vehicle.  Naturally, one of the first things we would like to do in developing a self-driving car is to automatically detect lane lines using an algorithm.
+This is an project is will detect lane lines in video images in a rudimentary manner using Python and OpenCV. The process followed are discussed together with improvements needed.
 
-In this project you will detect lane lines in images using Python and OpenCV.  OpenCV means "Open-Source Computer Vision", which is a package that has many useful tools for analyzing images.  
+### Process
 
-To complete the project, two files will be submitted: a file containing project code and a file containing a brief write up explaining your solution. We have included template files to be used both for the [code](https://github.com/udacity/CarND-LaneLines-P1/blob/master/P1.ipynb) and the [writeup](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md).The code file is called P1.ipynb and the writeup template is writeup_template.md 
+The pipeline consists of the following steps:
+The video image processing pipeline consists of:
 
-To meet specifications in the project, take a look at the requirements in the [project rubric](https://review.udacity.com/#!/rubrics/322/view)
+1. Images from .mp4 video are individually distilled and fed into an image processing pipeline.
+2. Canny processing of image in color to detect image edges.
+3. Gaussian blur to smooth the edges.
+4. Region of interest limits the area of edges detected in image. 
+5. Hough transform weas applied to detect lines within the image. This resulted in multiple lines representing a single curve.
+6. Curve fitting was applied by:
+    - Determine which lines generated from Hough algorithm are located in the left or right lane depending on the slope of the line.
+    - Determine the median of the slopes.
+    - Apply a line with the median of the slope starting from the bottom of the frame until the vanishing point.
+7. The curves are overlayed to the image.
 
+### Results & Discussion
+- Canny algorithm:
+The image processing was done fully in colour without converting to grey scale as is usual prior to applying Canny algorithm. This yielded satisfactory results.
+- Gaussian blur: A smaller kernel size yielded much better results, probably due to processing in color.
+- Region of interest vertices are static and were selected based on the expected vehicle visibility of lanes. As the vertices are fixed, this severly limits the range of lane detection.
 
-Creating a Great Writeup
----
-For this project, a great writeup should provide a detailed response to the "Reflection" section of the [project rubric](https://review.udacity.com/#!/rubrics/322/view). There are three parts to the reflection:
+- Applying the Hough Transform in the region of interest resulted in satisfactory identification of lines. This however, means that dashed lines were identified as individual lines.
 
-1. Describe the pipeline
+    ![Hough Transform applied](no_lane_fitting.jpg)
 
-2. Identify any shortcomings
+- In order to identify dashed lines as single lines, line fitting was applied by calculating the mean among the individual lines from the Hough transform. Choosing to use the median of the slopes, as opposed to the mean, made a big different to the results. This is understandable as outliers, such as the edges of vehicles or color variations, would heavily impact the overall result. The median helps remove outliers.
 
-3. Suggest possible improvements
+    ![Hough Transform applied](with_lane_fitting.jpg)
 
-We encourage using images in your writeup to demonstrate how your pipeline works.  
+### Further Work
 
-All that said, please be concise!  We're not looking for you to write a book here: just a brief description.
+Below listed are limitations of the pipeline and algorithms used together with possible solutions to explore:
 
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup. Here is a link to a [writeup template file](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md). 
+1. The pipeline assumes a linear model for lane detection. This will result in incorrect results when the lane is curved. Polylinear regression models would improve this.
 
+2. The pipeline uses a region of interest in identification of lanes to simplify the image processing. This will result in an incorrect result when the car steers sideways from the region of interest, or when the road significantly changes its vanishing point, in hills for example.
 
-The Project
----
+3. The pipeline would incorrectly detect as lanes, markings or objects near the lanes such as crash barriers, or fences. Machine learning algorithms would improve identification of objects.
 
-## If you have already installed the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) you should be good to go!   If not, you should install the starter kit to get started on this project. ##
-
-**Step 1:** Set up the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) if you haven't already.
-
-**Step 2:** Open the code in a Jupyter Notebook
-
-You will complete the project code in a Jupyter notebook.  If you are unfamiliar with Jupyter Notebooks, check out [Udacity's free course on Anaconda and Jupyter Notebooks](https://classroom.udacity.com/courses/ud1111) to get started.
-
-Jupyter is an Ipython notebook where you can run blocks of code and see results interactively.  All the code for this project is contained in a Jupyter notebook. To start Jupyter in your browser, use terminal to navigate to your project directory and then run the following command at the terminal prompt (be sure you've activated your Python 3 carnd-term1 environment as described in the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) installation instructions!):
-
-`> jupyter notebook`
-
-A browser window will appear showing the contents of the current directory.  Click on the file called "P1.ipynb".  Another browser window will appear displaying the notebook.  Follow the instructions in the notebook to complete the project.  
-
-**Step 3:** Complete the project and submit both the Ipython notebook and the project writeup
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
+4. Vehicles positioned at the sides or close to the front of the car could be incorrectly classified as lane markings. Machine learning algorithms would improve identification of objects.
 
