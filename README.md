@@ -1,6 +1,4 @@
-# **Finding Lane Lines on the Road** 
-[![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
-
+# Finding Lane Lines on the Road
 #### Submitted by Cristian Alberch as part of Udacity Self Driving Car Engineering Nanodegree - December 2020
 
 ### Overview
@@ -14,19 +12,20 @@ The pipeline consists of the following steps:
 The video image processing pipeline consists of:
 
 1. Images from .mp4 video are individually distilled and fed into an image processing pipeline.
-2. Canny processing of image in color to detect image edges.
-3. Gaussian blur to smooth the edges.
-4. Region of interest limits the area of edges detected in image. 
-5. Hough transform weas applied to detect lines within the image. This resulted in multiple lines representing a single curve.
-6. Curve fitting was applied by:
+2. Conversion to black & white to facilitate edge detection.
+3. Canny processing of image in color to detect image edges.
+4. Gaussian blur to smooth the edges.
+5. Region of interest limits the area of edges detected in image. 
+6. Hough transform weas applied to detect lines within the image. This resulted in multiple lines representing a single curve.
+7. Curve fitting was applied by:
     - Determine which lines generated from Hough algorithm are located in the left or right lane depending on the slope of the line.
     - Determine the median of the slopes.
     - Apply a line with the median of the slope starting from the bottom of the frame until the vanishing point.
-7. The curves are overlayed to the image.
+8. The curves are overlayed to the image.
 
 ### Results & Discussion
 - Canny algorithm:
-The image processing was done fully in colour without converting to grey scale as is usual prior to applying Canny algorithm. This yielded satisfactory results.
+The image processing was done fully in greyscale prior to applying Canny algorithm. This yielded better results than when directly applying from colour.
 - Gaussian blur: A smaller kernel size yielded much better results, probably due to processing in color.
 - Region of interest vertices are static and were selected based on the expected vehicle visibility of lanes. As the vertices are fixed, this severly limits the range of lane detection.
 
@@ -34,7 +33,7 @@ The image processing was done fully in colour without converting to grey scale a
 
     ![Hough Transform applied](no_lane_fitting.jpg)
 
-- In order to identify dashed lines as single lines, line fitting was applied by calculating the mean among the individual lines from the Hough transform. Choosing to use the median of the slopes, as opposed to the mean, made a big different to the results. This is understandable as outliers, such as the edges of vehicles or color variations, would heavily impact the overall result. The median helps remove outliers.
+- In order to identify dashed lines as single lines, line fitting was applied by calculating the mean among the individual lines from the Hough transform. The dataset obtained from the individual lines was normalized with a standard deviation of 1.0 and the mean obtained. This ensures removing outliers and accurate average representation/
 
     ![Hough Transform applied](with_lane_fitting.jpg)
 
@@ -49,4 +48,3 @@ Below listed are limitations of the pipeline and algorithms used together with p
 3. The pipeline would incorrectly detect as lanes, markings or objects near the lanes such as crash barriers, or fences. Machine learning algorithms would improve identification of objects.
 
 4. Vehicles positioned at the sides or close to the front of the car could be incorrectly classified as lane markings. Machine learning algorithms would improve identification of objects.
-
